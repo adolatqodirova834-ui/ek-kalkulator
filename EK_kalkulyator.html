@@ -4,29 +4,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EK kalkulyatori</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%231f5fb0%22/%3E%3Cpath%20d%3D%22M32%209C32%209%2015%2028%2015%2039a17%2017%200%200%200%2034%200C49%2028%2032%209%2032%209z%22%20fill%3D%22%23fff%22/%3E%3Cpath%20d%3D%22M35%2024l-10%2015h7l-2%2012%2010-16h-7z%22%20fill%3D%22%23f2a900%22/%3E%3C/svg%3E">
 <style>
 :root{--bg:#f6f6f4;--card:#fff;--ink:#0b0b0b;--muted:#5d5c58;--line:#dddcd7;--accent:#2a78d6;--err:#b3261e;--errbg:#fdecea;--warn:#7a5200;--warnbg:#fff4d6;--ok:#1b6b3a;--okbg:#e6f4ea;--info:#1d4f91;--infobg:#e8f0fb}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Arial,Helvetica,sans-serif}
-header{background:var(--card);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px}
+header{background:linear-gradient(100deg,#174a8c,#2a78d6 60%,#3aa0c8);color:#fff;padding:14px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 24px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.brand{display:flex;align-items:center;gap:12px;margin-right:auto}.brand svg{width:46px;height:46px;border-radius:11px;box-shadow:0 0 0 2px rgba(255,255,255,.35)}
+.brand small{display:block;font-size:13px;opacity:.9;margin-top:2px}
 h1{font-size:20px;margin:0}
 h2{font-size:17px;margin:22px 0 10px}
 .tabs{display:flex;gap:6px}
-.tabs button{border:1px solid var(--line);background:var(--bg);padding:8px 16px;border-radius:6px;font:inherit;cursor:pointer}
-.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:bold}
+.tabs button{border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.12);color:#fff;padding:9px 18px;border-radius:20px;font:inherit;cursor:pointer}
+.tabs button.on{background:#fff;border-color:#fff;color:#174a8c;font-weight:bold}
 .wrap{display:flex;flex-wrap:wrap;gap:20px;padding:20px;max-width:1500px;margin:0 auto}
-aside{flex:0 0 300px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;align-self:flex-start}
+aside{flex:0 0 300px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;align-self:flex-start;box-shadow:0 1px 3px rgba(0,0,0,.05)}
 main{flex:1 1 600px;min-width:0}
-aside h2{margin-top:0}
+aside h2{margin-top:0}aside h2:not(:first-child){margin-top:20px}
 label{display:block;margin:10px 0 3px;font-size:13.5px}
 input[type=number],select{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff}
 input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
 .hint{color:var(--muted);font-size:12.5px;margin-top:3px}
 .row2{display:flex;gap:14px;flex-wrap:wrap}.row2>div{flex:1 1 220px}
 .radio{display:flex;gap:16px;margin-top:4px}.radio label{display:inline;margin:0;font-size:15px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
-.card .l{font-size:13px;color:var(--muted)}.card .v{font-size:26px;margin-top:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.card.ic{display:flex;gap:11px;align-items:center}.ico{flex:0 0 40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}.ico svg{width:22px;height:22px}
+.split{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}.split>.res{flex:1 1 430px;min-width:0}.split>.scheme{flex:0 1 380px}
+.scheme{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}.scheme h2{margin:0 0 4px}.scheme svg{width:100%;height:auto;display:block}
+.rx{font-size:13.5px;margin:6px 0 0;padding:0;list-style:none}.rx li{padding:3px 0}.rx b{display:inline-block;min-width:64px;color:var(--muted);font-weight:normal}
+@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateY(-120px);opacity:0}}
+@keyframes drift{0%{transform:translateX(0);opacity:0}20%{opacity:1}80%{opacity:1}100%{transform:translateX(46px);opacity:0}}
+.bub{animation:rise 3.2s linear infinite}.ion{animation:drift 3.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.bub,.ion{animation:none}}
+.card .l{font-size:13px;color:var(--muted)}.card .v{font-size:25px;margin-top:3px}
 .msg{padding:9px 12px;border-radius:6px;margin:8px 0;font-size:14px}
 .msg.err{background:var(--errbg);color:var(--err)}.msg.warn{background:var(--warnbg);color:var(--warn)}
 .msg.ok{background:var(--okbg);color:var(--ok)}.msg.info{background:var(--infobg);color:var(--info)}
@@ -45,7 +56,7 @@ footer{color:var(--muted);font-size:12.5px;padding:0 20px 24px;max-width:1500px;
 </head>
 <body>
 <header>
-  <h1>Elektrokoagulyatsiya kalkulyatori</h1>
+  <div class="brand"><svg aria-hidden="true" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1f5fb0"/><path d="M32 9C32 9 15 28 15 39a17 17 0 0 0 34 0C49 28 32 9 32 9z" fill="#fff"/><path d="M35 24l-10 15h7l-2 12 10-16h-7z" fill="#f2a900"/></svg><div><h1>Elektrokoagulyatsiya kalkulyatori</h1><small>Oqova suvni metall elektrodlar bilan tozalash — laboratoriya hisoblari</small></div></div>
   <div class="tabs"><button id="tabCalc" class="on">Asosiy kalkulyator</button><button id="tabKin">Kinetika</button></div>
 </header>
 <div class="wrap">
@@ -77,7 +88,64 @@ footer{color:var(--muted);font-size:12.5px;padding:0 20px 24px;max-width:1500px;
   </div>
   <div id="calcMsgs"></div>
   <div id="calcOut">
-    <h2>Natijalar</h2><div class="grid" id="cards"></div>
+    <div class="split"><div class="res"><h2 style="margin-top:6px">Natijalar</h2><div class="grid" id="cards"></div></div>
+    <div class="scheme">
+      <h2>Jarayon sxemasi</h2>
+      <svg viewBox="0 0 380 322" role="img" aria-label="Elektrokoagulyatsiya reaktori sxemasi: anod, katod, tok manbai, alyuminiy ionlari, vodorod pufakchalari va flokulalar">
+        <defs>
+          <linearGradient id="gw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9effa"/><stop offset="1" stop-color="#a9d6ee"/></linearGradient>
+          <linearGradient id="ga" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e3e7eb"/><stop offset=".5" stop-color="#b4bcc5"/><stop offset="1" stop-color="#d5dae0"/></linearGradient>
+          <linearGradient id="gc" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#aab2bb"/><stop offset=".5" stop-color="#7d8792"/><stop offset="1" stop-color="#a3abb4"/></linearGradient>
+          <marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7z" fill="#c2410c"/></marker>
+        </defs>
+        <!-- wires -->
+        <path d="M130 30H115V88" fill="none" stroke="#c0392b" stroke-width="3"/>
+        <path d="M250 30H265V88" fill="none" stroke="#1f2933" stroke-width="3"/>
+        <!-- power supply -->
+        <rect x="130" y="6" width="120" height="48" rx="8" fill="#1f2933"/>
+        <rect x="138" y="13" width="104" height="22" rx="4" fill="#0d3b2e"/>
+        <text id="svgSupply" x="190" y="29" text-anchor="middle" font-size="13" font-family="Consolas,monospace" fill="#5cf2a5">10 V · 1 A</text>
+        <text x="190" y="48" text-anchor="middle" font-size="10" fill="#cbd2d9">O'zgarmas tok manbai</text>
+        <text x="103" y="62" text-anchor="middle" font-size="20" font-weight="bold" fill="#c0392b">+</text>
+        <text x="277" y="62" text-anchor="middle" font-size="22" font-weight="bold" fill="#1f2933">−</text>
+        <!-- tank -->
+        <path d="M62 112V270a16 16 0 0 0 16 16H302a16 16 0 0 0 16-16V112z" fill="url(#gw)"/>
+        <rect x="62" y="112" width="256" height="9" fill="#e9dcc3" opacity=".9"/>
+        <ellipse cx="190" cy="279" rx="104" ry="7" fill="#b89b6a" opacity=".75"/>
+        <path d="M60 98V270a18 18 0 0 0 18 18H302a18 18 0 0 0 18-18V98" fill="none" stroke="#52514e" stroke-width="3" stroke-linecap="round"/>
+        <!-- electrodes -->
+        <rect x="105" y="86" width="20" height="172" rx="2" fill="url(#ga)" stroke="#7b8794"/>
+        <rect x="255" y="86" width="20" height="172" rx="2" fill="url(#gc)" stroke="#52606d"/>
+        <!-- Al3+ ions -->
+        <g font-size="10" text-anchor="middle" fill="#7c2d12">
+          <g class="ion"><circle cx="140" cy="150" r="11" fill="#ffd9a8" stroke="#e08a2e"/><text id="svgIon1" x="140" y="153.5">Al³⁺</text></g>
+          <g class="ion" style="animation-delay:1.2s"><circle cx="140" cy="190" r="11" fill="#ffd9a8" stroke="#e08a2e"/><text id="svgIon2" x="140" y="193.5">Al³⁺</text></g>
+          <g class="ion" style="animation-delay:2.4s"><circle cx="140" cy="230" r="11" fill="#ffd9a8" stroke="#e08a2e"/><text id="svgIon3" x="140" y="233.5">Al³⁺</text></g>
+        </g>
+        <!-- flocs -->
+        <g fill="#c9a66b" stroke="#8a6d3b" stroke-width=".8">
+          <circle cx="196" cy="168" r="6"/><circle cx="204" cy="173" r="5"/><circle cx="198" cy="177" r="4.5"/>
+          <circle cx="216" cy="214" r="6"/><circle cx="208" cy="219" r="5"/><circle cx="218" cy="223" r="4"/>
+          <circle cx="188" cy="244" r="5"/><circle cx="195" cy="249" r="5.5"/>
+        </g>
+        <!-- H2 bubbles -->
+        <g fill="#fff" stroke="#2a78d6" stroke-width="1.2">
+          <circle class="bub" cx="246" cy="245" r="4"/><circle class="bub" style="animation-delay:.8s" cx="240" cy="250" r="3"/>
+          <circle class="bub" style="animation-delay:1.6s" cx="248" cy="240" r="5"/><circle class="bub" style="animation-delay:2.4s" cx="243" cy="248" r="3.5"/>
+        </g>
+        <!-- labels -->
+        <g font-size="12" fill="#0b0b0b">
+          <text id="svgAnode" x="115" y="306" text-anchor="middle" font-weight="bold">Anod (Al)</text>
+          <text x="265" y="306" text-anchor="middle" font-weight="bold">Katod</text>
+          <text x="232" y="140" text-anchor="end" fill="#1d4f91">H₂↑</text>
+          <text id="svgFloc" x="190" y="200" text-anchor="middle" font-size="11" fill="#5b4520">Al(OH)₃</text>
+          <text x="190" y="276" text-anchor="middle" font-size="10.5" fill="#3d2f14">cho'kma</text>
+          <text x="190" y="108" text-anchor="middle" font-size="10.5" fill="#5b4520">ko'pik (flotatsiya)</text>
+        </g>
+        <text id="svgJ" x="190" y="320" text-anchor="middle" font-size="11.5" fill="#5d5c58">j = 10 mA/cm²</text>
+      </svg>
+      <ul class="rx" id="rx"></ul>
+    </div></div>
     <h2>Jadval va eksport</h2><div class="scroll"><table id="resTable"></table></div>
     <button class="btn" id="calcXlsx">⬇ Excel (.xlsx)</button><button class="btn" id="calcCsv">⬇ CSV</button>
   </div>
@@ -330,6 +398,30 @@ function inputRows(p, r) {
   return rows;
 }
 var HEAD = ["Ko'rsatkich", "Belgi", "Qiymat", "Birlik"];
+var ICONS = {
+  drop: ["#e8f0fb", '<path d="M12 2.5S5 10.5 5 15a7 7 0 0 0 14 0c0-4.5-7-12.5-7-12.500z" fill="#2a78d6"/>'],
+  bolt: ["#fff4d6", '<path d="M13.5 2L5 13.500h5.500L9 22l9.5-12H13z" fill="#d48a00"/>'],
+  plate: ["#eceff2", '<rect x="8" y="3" width="8" height="18" rx="1.5" fill="#7d8792"/><rect x="8" y="3" width="3" height="18" rx="1.5" fill="#b4bcc5"/>'],
+  pct: ["#e6f4ea", '<circle cx="7.5" cy="7.5" r="3" fill="none" stroke="#1b6b3a" stroke-width="2.2"/><circle cx="16.5" cy="16.5" r="3" fill="none" stroke="#1b6b3a" stroke-width="2.2"/><path d="M18 5L6 19" stroke="#1b6b3a" stroke-width="2.2" stroke-linecap="round"/>'],
+  coin: ["#fdeee0", '<circle cx="12" cy="12" r="9" fill="#e08a2e"/><circle cx="12" cy="12" r="6" fill="none" stroke="#fff" stroke-width="1.5"/><path d="M12 8.500v7M9.5 12h5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>'],
+  gas: ["#e8f0fb", '<circle cx="8" cy="15" r="4.5" fill="none" stroke="#2a78d6" stroke-width="2"/><circle cx="16" cy="9" r="3.5" fill="none" stroke="#2a78d6" stroke-width="2"/><circle cx="17" cy="18" r="2" fill="#2a78d6"/>']
+};
+var CARD_ICONS = ["plate", "drop", "bolt", "bolt", "bolt", "plate", "pct", "bolt", "coin", "plate", "gas"];
+function icon(name) { var i = ICONS[name]; return '<div class="ico" style="background:' + i[0] + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + i[1] + "</svg></div>"; }
+var REACTIONS = {
+  Al: [["Anod:", "Al → Al³⁺ + 3e⁻"], ["Katod:", "2H₂O + 2e⁻ → H₂↑ + 2OH⁻"], ["Hajmda:", "Al³⁺ + 3OH⁻ → Al(OH)₃↓"]],
+  Fe: [["Anod:", "Fe → Fe²⁺ + 2e⁻"], ["Katod:", "2H₂O + 2e⁻ → H₂↑ + 2OH⁻"], ["Hajmda:", "Fe²⁺ + 2OH⁻ → Fe(OH)₂↓"]]
+};
+var ION = {Al: ["Al³⁺", "Al(OH)₃"], Fe: ["Fe²⁺", "Fe(OH)₂"]};
+function renderScheme(p) {
+  var sym = p.material, ion = ION[sym] || [sym + "ⁿ⁺", sym + "(OH)ₙ"];
+  $("svgSupply").textContent = (isFinite(p.U) ? fmt(p.U) : "—") + " V · " + (isFinite(p.I) ? fmt(p.I) : "—") + " A";
+  $("svgAnode").textContent = "Anod (" + sym + ")";
+  ["svgIon1", "svgIon2", "svgIon3"].forEach(function (id) { $(id).textContent = ion[0]; });
+  $("svgFloc").textContent = ion[1];
+  $("svgJ").textContent = p.A > 0 && isFinite(p.I) ? "j = " + fmt(p.I * 1000 / p.A) + " mA/cm²" : "";
+  $("rx").innerHTML = (REACTIONS[sym] || []).map(function (r) { return "<li><b>" + r[0] + "</b> " + r[1] + "</li>"; }).join("");
+}
 
 function renderCalc() {
   var p = params(), box = $("calcMsgs"), v = validate(p, false);
@@ -341,9 +433,10 @@ function renderCalc() {
   var r = calculate(p);
   if (r.perHour) msgs(box, ["Uzluksiz rejim: HRT = V/Q = " + fmt(r.time) + " min. Doza, zaryad va energiya HRT bo'yicha, H₂ hajmi va anod yemirilishi 1 soatlik ish uchun hisoblangan."], "info");
   var rows = resultRows(p, r);
-  $("cards").innerHTML = rows.map(function (x) {
-    return '<div class="card"><div class="l">' + esc(x[0]) + " (" + esc(x[3]) + ')</div><div class="v">' + fmt(x[2]) + "</div></div>";
+  $("cards").innerHTML = rows.map(function (x, i) {
+    return '<div class="card ic">' + icon(CARD_ICONS[i]) + '<div><div class="l">' + esc(x[0]) + " (" + esc(x[3]) + ')</div><div class="v">' + fmt(x[2]) + "</div></div></div>";
   }).join("");
+  renderScheme(p);
   $("resTable").innerHTML = "<thead><tr>" + HEAD.map(function (h, i) { return "<th" + (i !== 2 ? ' class="t"' : "") + ">" + h + "</th>"; }).join("") + "</tr></thead><tbody>" +
     rows.map(function (x) { return '<tr><td class="t">' + esc(x[0]) + '</td><td class="t">' + esc(x[1]) + "</td><td>" + fmt(x[2], 6) + '</td><td class="t">' + esc(x[3]) + "</td></tr>"; }).join("") + "</tbody>";
   lastCalc = {p: p, r: r, rows: rows};

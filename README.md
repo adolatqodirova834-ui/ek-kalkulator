@@ -21,6 +21,9 @@ internet kerak emas, Python kerak emas. Eski kompyuter va brauzerlarda (masalan,
 Ichida asosiy kalkulyator, kinetika, grafiklar (PNG) va Excel/CSV eksport bor; hisoblar Streamlit versiyasi va
 Excel prototipi bilan bir xil. Kiritilgan qiymatlar shu brauzerda saqlanib qoladi.
 
+Alohida oynali ilova sifatida ochish (Chrome): faylni Chrome'da oching → menyu (⋮) → **Boshqa vositalar** →
+**Yorliq yaratish** → **Oyna sifatida ochish** ni belgilang. Ish stolida logotipli yorliq paydo bo'ladi.
+
 Fayl `standalone/app.html` dan `python standalone/build.py` buyrug'i bilan yig'iladi.
 
 ## Streamlit versiyasi: ikki marta bosish bilan
