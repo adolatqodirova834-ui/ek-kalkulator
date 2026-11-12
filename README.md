@@ -14,7 +14,16 @@ usulida tozalash bo'yicha laboratoriya tajribalari uchun veb-kalkulyator. Python
 - **Tekshiruv**: nol va manfiy qiymatlar rad etiladi; manba chegarasi (30 V / 10 A), tok zichligi, φ va C > C₀
   bo'yicha ogohlantirishlar chiqadi.
 
-## Tez ishga tushirish (ikki marta bosish bilan)
+## Eng oson yo'l: `EK_kalkulyator.html`
+
+`EK_kalkulyator.html` faylini ikki marta bosing — kalkulyator brauzerda ochiladi. Hech narsa o'rnatish shart emas,
+internet kerak emas, Python kerak emas. Eski kompyuter va brauzerlarda (masalan, Windows 7) ham ishlaydi.
+Ichida asosiy kalkulyator, kinetika, grafiklar (PNG) va Excel/CSV eksport bor; hisoblar Streamlit versiyasi va
+Excel prototipi bilan bir xil. Kiritilgan qiymatlar shu brauzerda saqlanib qoladi.
+
+Fayl `standalone/app.html` dan `python standalone/build.py` buyrug'i bilan yig'iladi.
+
+## Streamlit versiyasi: ikki marta bosish bilan
 
 Kompyuterda **Python 3.11 yoki undan yangi** versiya o'rnatilgan bo'lishi kerak
 (https://www.python.org/downloads/ — Windows'da o'rnatishda "Add python.exe to PATH" belgisini yoqing).

@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EK kalkulyatori</title>
+<style>
+:root{--bg:#f6f6f4;--card:#fff;--ink:#0b0b0b;--muted:#5d5c58;--line:#dddcd7;--accent:#2a78d6;--err:#b3261e;--errbg:#fdecea;--warn:#7a5200;--warnbg:#fff4d6;--ok:#1b6b3a;--okbg:#e6f4ea;--info:#1d4f91;--infobg:#e8f0fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Arial,Helvetica,sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px}
+h1{font-size:20px;margin:0}
+h2{font-size:17px;margin:22px 0 10px}
+.tabs{display:flex;gap:6px}
+.tabs button{border:1px solid var(--line);background:var(--bg);padding:8px 16px;border-radius:6px;font:inherit;cursor:pointer}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:bold}
+.wrap{display:flex;flex-wrap:wrap;gap:20px;padding:20px;max-width:1500px;margin:0 auto}
+aside{flex:0 0 300px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;align-self:flex-start}
+main{flex:1 1 600px;min-width:0}
+aside h2{margin-top:0}
+label{display:block;margin:10px 0 3px;font-size:13.5px}
+input[type=number],select{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.hint{color:var(--muted);font-size:12.5px;margin-top:3px}
+.row2{display:flex;gap:14px;flex-wrap:wrap}.row2>div{flex:1 1 220px}
+.radio{display:flex;gap:16px;margin-top:4px}.radio label{display:inline;margin:0;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.card .l{font-size:13px;color:var(--muted)}.card .v{font-size:26px;margin-top:4px}
+.msg{padding:9px 12px;border-radius:6px;margin:8px 0;font-size:14px}
+.msg.err{background:var(--errbg);color:var(--err)}.msg.warn{background:var(--warnbg);color:var(--warn)}
+.msg.ok{background:var(--okbg);color:var(--ok)}.msg.info{background:var(--infobg);color:var(--info)}
+table{border-collapse:collapse;width:100%;background:var(--card);font-size:14px}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:right;white-space:nowrap}
+th{background:#efeeea;font-weight:bold}td.t,th.t{text-align:left;white-space:normal}
+.scroll{overflow-x:auto;border-radius:6px}
+.btn{display:inline-block;border:1px solid var(--line);background:var(--card);padding:8px 14px;border-radius:6px;font:inherit;cursor:pointer;margin:8px 8px 0 0}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.x{padding:2px 9px;margin:0;color:var(--err)}
+#kinIn td{padding:3px}#kinIn input{border:0;text-align:right;padding:5px 6px}
+.chart{background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px;margin-bottom:6px;max-width:920px}
+.hide{display:none}
+footer{color:var(--muted);font-size:12.5px;padding:0 20px 24px;max-width:1500px;margin:0 auto}
+</style>
+</head>
+<body>
+<header>
+  <h1>Elektrokoagulyatsiya kalkulyatori</h1>
+  <div class="tabs"><button id="tabCalc" class="on">Asosiy kalkulyator</button><button id="tabKin">Kinetika</button></div>
+</header>
+<div class="wrap">
+<aside>
+  <h2>Jarayon parametrlari</h2>
+  <label for="material">Elektrod materiali</label><select id="material"></select>
+  <div class="hint" id="matInfo"></div>
+  <label>Rejim</label>
+  <div class="radio"><label><input type="radio" name="mode" value="batch" checked> Davriy</label><label><input type="radio" name="mode" value="continuous"> Uzluksiz</label></div>
+  <label for="I">Tok kuchi, I (A)</label><input type="number" id="I" step="0.1" min="0">
+  <label for="U">Kuchlanish, U (V)</label><input type="number" id="U" step="0.5" min="0">
+  <div id="tBox"><label for="t">Vaqt, t (min)</label><input type="number" id="t" step="5" min="0"></div>
+  <div id="qBox" class="hide"><label for="Q">Oqim tezligi, Q (L/soat)</label><input type="number" id="Q" step="0.1" min="0"><div class="hint">Uzluksiz rejimda t o'rniga HRT = V/Q ishlatiladi.</div></div>
+  <label for="V">Suv hajmi, V (L)</label><input type="number" id="V" step="0.1" min="0">
+  <label for="A">Anodlarning umumiy faol yuzasi, A (cm²)</label><input type="number" id="A" step="10" min="0">
+  <label for="phi">Tok samaradorligi, φ (o'lchamsiz)</label><input type="number" id="phi" step="0.05" min="0">
+  <div class="hint">Nazariy: 1. Al uchun amalda ~1,1–1,5.</div>
+  <h2>Narxlar</h2>
+  <label for="pe">Elektr narxi (so'm/kWh)</label><input type="number" id="pe" step="50" min="0">
+  <label for="pm"><span id="pmName">Alyuminiy</span> narxi (so'm/kg)</label><input type="number" id="pm" step="1000" min="0">
+  <div class="hint">Narxlar taxminiy namuna — amaldagi qiymatlarni kiriting.</div>
+  <button class="btn" id="reset">Namuna qiymatlarga qaytarish</button>
+</aside>
+<main>
+<section id="pCalc">
+  <div class="row2">
+    <div><label for="C0">Boshlang'ich KXT, C₀ (mg/L)</label><input type="number" id="C0" step="50" min="0"></div>
+    <div><label for="C">Oxirgi KXT, C (mg/L)</label><input type="number" id="C" step="50" min="0"></div>
+  </div>
+  <div id="calcMsgs"></div>
+  <div id="calcOut">
+    <h2>Natijalar</h2><div class="grid" id="cards"></div>
+    <h2>Jadval va eksport</h2><div class="scroll"><table id="resTable"></table></div>
+    <button class="btn" id="calcXlsx">⬇ Excel (.xlsx)</button><button class="btn" id="calcCsv">⬇ CSV</button>
+  </div>
+</section>
+<section id="pKin" class="hide">
+  <div class="msg info">Vaqt va KXT qiymatlarini kiriting yoki CSV yuklang. t = 0 dagi qiymat C₀ deb olinadi. I, U, V, A va φ chap paneldan olinadi.</div>
+  <div class="row2">
+    <div>
+      <table id="kinIn"><thead><tr><th>t, min</th><th>KXT, mg/L</th><th></th></tr></thead><tbody></tbody></table>
+      <button class="btn" id="addRow">+ Qator qo'shish</button><button class="btn" id="sample">Namuna ma'lumot</button>
+    </div>
+    <div>
+      <label for="csv">CSV yuklash (1-ustun: vaqt, min; 2-ustun: KXT, mg/L)</label><input type="file" id="csv" accept=".csv,.txt">
+      <div class="hint">Ajratuvchi: vergul, nuqtali vergul yoki tabulyatsiya. O'nlik belgi: nuqta yoki vergul.</div>
+      <label for="target">Maqsadli tozalash samaradorligi, R (%)</label><input type="number" id="target" step="5" min="0" max="99.9">
+    </div>
+  </div>
+  <div id="kinMsgs"></div>
+  <div id="kinOut">
+    <h2>Hisoblangan nuqtalar</h2><div class="scroll"><table id="kinTable"></table></div>
+    <h2>Kinetik modellar</h2><div id="best"></div><div class="grid" id="kinCards"></div>
+    <div class="hint">Qiyalik va R² erkin hadli chiziqli regressiya bilan hisoblanadi (Excel'dagi SLOPE va RSQ bilan bir xil).</div>
+    <div id="targetBox"></div>
+    <h2>Grafiklar</h2>
+    <div class="chart" id="g1"></div><button class="btn png" data-g="g1" data-f="KXT_vaqt">⬇ PNG (3600×2240)</button>
+    <div class="chart" id="g2" style="margin-top:16px"></div><button class="btn png" data-g="g2" data-f="birinchi_tartib">⬇ PNG (3600×2240)</button>
+    <div class="chart" id="g3" style="margin-top:16px"></div><button class="btn png" data-g="g3" data-f="ikkinchi_tartib">⬇ PNG (3600×2240)</button>
+    <h2>Eksport</h2>
+    <button class="btn" id="kinXlsx">⬇ Excel (.xlsx)</button><button class="btn" id="kinCsv">⬇ CSV</button>
+  </div>
+</section>
+</main>
+</div>
+<footer>F = 96 485 C/mol. H₂ hajmi normal sharoitda (22 414 mL/mol), katod samaradorligi 100 % deb olingan. Kerakli vaqt — model asosidagi bashorat, tajribada tasdiqlash kerak. Dastur internetsiz ishlaydi; kiritilgan qiymatlar faqat shu brauzerda saqlanadi.</footer>
+
+<script>/*__PLOTLY__*/</script>
+<script>/*__XLSX__*/</script>
+<script>
+"use strict";
+// ---------------------------------------------------------------- core (mirrors ec_core/)
+var FARADAY = 96485, MOLAR_VOLUME_ML = 22414;
+var MATERIALS = {
+  Al: {name: "Alyuminiy", M: 26.98, z: 3, rho: 2.70}
+  // Fe: {name: "Temir", M: 55.845, z: 2, rho: 7.87}
+};
+var LIMITS = {I: 10, U: 30, jMin: 1, jMax: 100, phiMin: 0.8, phiMax: 2};
+
+function bad(x) { return typeof x !== "number" || !isFinite(x); }
+
+function validate(p, kineticsOnly) {
+  var errors = [], warnings = [];
+  var pos = [["Tok kuchi I (A)", p.I], ["Kuchlanish U (V)", p.U], ["Suv hajmi V (L)", p.V],
+             ["Anod yuzasi A (cm²)", p.A], ["Tok samaradorligi φ", p.phi]];
+  if (!kineticsOnly) {
+    pos.push(["Boshlang'ich KXT C₀ (mg/L)", p.C0], ["Oxirgi KXT C (mg/L)", p.C]);
+    pos.push(p.mode === "continuous" ? ["Oqim tezligi Q (L/soat)", p.Q] : ["Vaqt t (min)", p.t]);
+  }
+  pos.forEach(function (x) {
+    if (bad(x[1])) errors.push(x[0] + ": qiymat kiritilmagan yoki noto'g'ri.");
+    else if (x[1] <= 0) errors.push(x[0] + ": qiymat noldan katta bo'lishi kerak.");
+  });
+  [["Elektr narxi (so'm/kWh)", p.pe], ["Elektrod narxi (so'm/kg)", p.pm]].forEach(function (x) {
+    if (bad(x[1])) errors.push(x[0] + ": qiymat kiritilmagan yoki noto'g'ri.");
+    else if (x[1] < 0) errors.push(x[0] + ": qiymat manfiy bo'lishi mumkin emas.");
+  });
+  if (errors.length) return {errors: errors, warnings: warnings};
+  if (p.I > LIMITS.I) warnings.push("Tok kuchi " + p.I + " A — manba chegarasidan (10 A, Wanptek DPS3010U) yuqori.");
+  if (p.U > LIMITS.U) warnings.push("Kuchlanish " + p.U + " V — manba chegarasidan (30 V, Wanptek DPS3010U) yuqori.");
+  var j = p.I * 1000 / p.A;
+  if (j < LIMITS.jMin || j > LIMITS.jMax) warnings.push("Tok zichligi " + j.toFixed(2) + " mA/cm² — odatiy oraliqdan (1–100 mA/cm²) tashqarida.");
+  if (p.phi < LIMITS.phiMin || p.phi > LIMITS.phiMax) warnings.push("Tok samaradorligi φ = " + p.phi + " — odatiy oraliqdan (0.8–2) tashqarida.");
+  if (!kineticsOnly) {
+    if (p.C > p.C0) warnings.push("Oxirgi KXT boshlang'ichdan katta (C > C₀): samaradorlik manfiy, solishtirma energiya hisoblanmaydi.");
+    else if (p.C === p.C0) warnings.push("C = C₀: tozalash samaradorligi 0 %, solishtirma energiya hisoblanmaydi.");
+  }
+  return {errors: errors, warnings: warnings};
+}
+
+function dissolvedMass(p, tMin) {            // 1: m = I*t*M/(z*F)*phi
+  var m = MATERIALS[p.material];
+  return p.I * (tMin * 60) * m.M / (m.z * FARADAY) * p.phi;
+}
+function atTime(p, tMin) {
+  var m = dissolvedMass(p, tMin);
+  return {mass: m, dose: m * 1000 / p.V, charge: p.I * (tMin * 60) / p.V,
+          energy: p.U * p.I * (tMin / 60) / p.V, elc: m / p.V};
+}
+function calculate(p) {
+  var cont = p.mode === "continuous";
+  var t = cont ? p.V / p.Q * 60 : p.t;
+  var a = atTime(p, t), removed = p.C0 - p.C;
+  var tOp = cont ? 60 : t, mOp = dissolvedMass(p, tOp);
+  return {
+    time: t, perHour: cont, mass: a.mass, dose: a.dose, j: p.I * 1000 / p.A, charge: a.charge,
+    energy: a.energy, elc: a.elc, removal: removed / p.C0 * 100,
+    sec: removed > 0 ? a.energy / (removed / 1000) : null,
+    cost: p.pe * a.energy + p.pm * a.elc,
+    thickness: mOp / (MATERIALS[p.material].rho * p.A) * 10,
+    h2: p.I * (tOp * 60) / (2 * FARADAY) * MOLAR_VOLUME_ML
+  };
+}
+function linearFit(x, y) {                   // Excel SLOPE / INTERCEPT / RSQ
+  var n = x.length, mx = 0, my = 0, sxx = 0, syy = 0, sxy = 0, i;
+  for (i = 0; i < n; i++) { mx += x[i]; my += y[i]; }
+  mx /= n; my /= n;
+  for (i = 0; i < n; i++) { sxx += (x[i] - mx) * (x[i] - mx); syy += (y[i] - my) * (y[i] - my); sxy += (x[i] - mx) * (y[i] - my); }
+  var slope = sxy / sxx;
+  return {slope: slope, intercept: my - slope * mx, r2: syy > 0 ? sxy * sxy / (sxx * syy) : 0};
+}
+function analyze(rows, p) {                  // rows: [[t, C], ...]; p may be null
+  var pts = [], skipped = [], errors = [];
+  rows.forEach(function (r, i) {
+    var t = r[0], c = r[1];
+    if (t === null && c === null) return;
+    if (bad(t) || bad(c)) skipped.push((i + 1) + "-qator: qiymat bo'sh yoki son emas — tashlab ketildi.");
+    else if (t < 0) skipped.push((i + 1) + "-qator: vaqt manfiy — tashlab ketildi.");
+    else if (c <= 0) skipped.push((i + 1) + "-qator: KXT noldan katta bo'lishi kerak — tashlab ketildi.");
+    else pts.push([t, c]);
+  });
+  pts.sort(function (a, b) { return a[0] - b[0]; });
+  if (!pts.length || pts[0][0] !== 0) errors.push("t = 0 dagi KXT qiymati (C₀) kiritilishi shart.");
+  for (var i = 1; i < pts.length; i++) if (pts[i][0] === pts[i - 1][0]) { errors.push("Vaqt qiymatlari takrorlanmasligi kerak."); break; }
+  if (pts.length < 3) errors.push("Kinetik tahlil uchun kamida 3 ta to'g'ri nuqta kerak.");
+  if (errors.length) return {errors: errors, skipped: skipped};
+  var c0 = pts[0][1];
+  var points = pts.map(function (q) {
+    var a = p ? atTime(p, q[0]) : null;
+    return {t: q[0], c: q[1], ratio: q[1] / c0, removal: (c0 - q[1]) / c0 * 100, ln: Math.log(c0 / q[1]),
+            inv: 1 / q[1] - 1 / c0, dose: a ? a.dose : null, charge: a ? a.charge : null, energy: a ? a.energy : null};
+  });
+  var ts = points.map(function (q) { return q.t; });
+  var first = linearFit(ts, points.map(function (q) { return q.ln; }));
+  var second = linearFit(ts, points.map(function (q) { return q.inv; }));
+  return {errors: [], skipped: skipped, c0: c0, points: points, first: first, second: second,
+          best: first.r2 >= second.r2 ? "first" : "second", k1: first.slope, k2: second.slope,
+          halfLife: first.slope > 0 ? Math.LN2 / first.slope : null};
+}
+function timeForRemoval(R, k1) { return -Math.log(1 - R / 100) / k1; }
+window.EK = {calculate: calculate, analyze: analyze, validate: validate, atTime: atTime, timeForRemoval: timeForRemoval, linearFit: linearFit};
+
+// ---------------------------------------------------------------- UI helpers
+var $ = function (id) { return document.getElementById(id); };
+var DEFAULTS = {material: "Al", mode: "batch", I: 1, U: 10, t: 30, Q: 2, V: 1, A: 100, phi: 1, pe: 1000, pm: 35000, C0: 1500, C: 600, target: 80};
+var SAMPLE = [[0, 1500], [10, 1120], [20, 820], [30, 600], [40, 450], [50, 340], [60, 260]];
+var NUM_IDS = ["I", "U", "t", "Q", "V", "A", "phi", "pe", "pm", "C0", "C", "target"];
+var KEY = "ek_kalkulyator_v1";
+var kinRows = SAMPLE.map(function (r) { return r.slice(); });
+var lastCalc = null, lastKin = null;
+
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+function fmt(v, d) {
+  if (v === null || v === undefined || !isFinite(v)) return "—";
+  d = d || 4;
+  if (v !== 0 && Math.abs(v) < Math.pow(10, -(d - 1))) return v.toExponential(d - 1);
+  var s = Math.abs(v) >= Math.pow(10, d) ? String(Math.round(v)) : String(parseFloat(v.toPrecision(d)));
+  var parts = s.split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  return parts.join(".");
+}
+function num(id) { var s = $(id).value.trim().replace(",", "."); return s === "" ? NaN : Number(s); }
+function mode() { return document.querySelector("input[name=mode]:checked").value; }
+function params() {
+  return {material: $("material").value, mode: mode(), I: num("I"), U: num("U"), t: num("t"), Q: num("Q"), V: num("V"),
+          A: num("A"), phi: num("phi"), pe: num("pe"), pm: num("pm"), C0: num("C0"), C: num("C")};
+}
+function msgs(el, list, cls) { list.forEach(function (m) { el.insertAdjacentHTML("beforeend", '<div class="msg ' + cls + '">' + esc(m) + "</div>"); }); }
+function save() {
+  try {
+    var st = {material: $("material").value, mode: mode(), rows: kinRows};
+    NUM_IDS.forEach(function (id) { st[id] = $(id).value; });
+    localStorage.setItem(KEY, JSON.stringify(st));
+  } catch (e) {}
+}
+function load() {
+  var st = {};
+  try { st = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
+  NUM_IDS.forEach(function (id) { $(id).value = st[id] !== undefined ? st[id] : DEFAULTS[id]; });
+  if (st.material && MATERIALS[st.material]) $("material").value = st.material;
+  if (st.mode === "continuous") document.querySelector("input[name=mode][value=continuous]").checked = true;
+  if (Array.isArray(st.rows) && st.rows.length) kinRows = st.rows;
+}
+function download(name, blob) {
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function csvBlob(aoa) {
+  var text = aoa.map(function (r) {
+    return r.map(function (v) {
+      var s = v === null || v === undefined ? "" : String(v);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }).join(",");
+  }).join("\r\n");
+  return new Blob(["﻿" + text], {type: "text/csv;charset=utf-8"});
+}
+function xlsxDownload(name, sheets) {
+  var wb = XLSX.utils.book_new();
+  sheets.forEach(function (s) {
+    var ws = XLSX.utils.aoa_to_sheet(s[1]);
+    ws["!cols"] = s[1][0].map(function (_, i) {
+      return {wch: Math.min(45, 2 + Math.max.apply(null, s[1].map(function (r) { return String(r[i] === null || r[i] === undefined ? "" : r[i]).length; })))};
+    });
+    XLSX.utils.book_append_sheet(wb, ws, s[0]);
+  });
+  XLSX.writeFile(wb, name);
+}
+
+// ---------------------------------------------------------------- calculator page
+function resultRows(p, r) {
+  var sym = p.material, h = r.perHour ? "/soat" : "";
+  return [
+    ["Erigan " + sym + " massasi" + (r.perHour ? " (HRT davomida)" : ""), "m", r.mass, "g"],
+    ["Koagulyant dozasi", "D", r.dose, "mg/L"],
+    ["Tok zichligi", "j", r.j, "mA/cm²"],
+    ["Zaryad yuklamasi", "q", r.charge, "C/L"],
+    ["Energiya sarfi", "E", r.energy, "kWh/m³"],
+    ["Elektrod sarfi", "ELC", r.elc, "kg/m³"],
+    ["Tozalash samaradorligi", "R", r.removal, "%"],
+    ["Solishtirma energiya", "SEC", r.sec, "kWh/kg KXT"],
+    ["Ekspluatatsiya xarajati", "OC", r.cost, "so'm/m³"],
+    ["Anod qalinligining kamayishi", "Δd", r.thickness, "mm" + h],
+    ["Ajralgan H₂ hajmi (n.sh.)", "V(H₂)", r.h2, "mL" + h]
+  ];
+}
+function inputRows(p, r) {
+  var m = MATERIALS[p.material], cont = p.mode === "continuous";
+  var rows = [["Elektrod materiali", "", m.name + " (" + p.material + ")", ""], ["Rejim", "", cont ? "Uzluksiz" : "Davriy", ""],
+              ["Tok kuchi", "I", p.I, "A"], ["Kuchlanish", "U", p.U, "V"]];
+  if (cont) rows.push(["Oqim tezligi", "Q", p.Q, "L/soat"], ["Gidravlik ushlanish vaqti", "HRT", r.time, "min"]);
+  else rows.push(["Vaqt", "t", p.t, "min"]);
+  rows.push(["Suv hajmi", "V", p.V, "L"], ["Anodlarning faol yuzasi", "A", p.A, "cm²"], ["Tok samaradorligi", "φ", p.phi, "—"],
+            ["Boshlang'ich KXT", "C₀", p.C0, "mg/L"], ["Oxirgi KXT", "C", p.C, "mg/L"],
+            ["Elektr narxi", "", p.pe, "so'm/kWh"], [m.name + " narxi", "", p.pm, "so'm/kg"]);
+  return rows;
+}
+var HEAD = ["Ko'rsatkich", "Belgi", "Qiymat", "Birlik"];
+
+function renderCalc() {
+  var p = params(), box = $("calcMsgs"), v = validate(p, false);
+  box.innerHTML = ""; lastCalc = null;
+  msgs(box, v.errors, "err");
+  $("calcOut").className = v.errors.length ? "hide" : "";
+  if (v.errors.length) { msgs(box, ["Natijalarni ko'rish uchun yuqoridagi xatolarni tuzating."], "info"); return; }
+  msgs(box, v.warnings, "warn");
+  var r = calculate(p);
+  if (r.perHour) msgs(box, ["Uzluksiz rejim: HRT = V/Q = " + fmt(r.time) + " min. Doza, zaryad va energiya HRT bo'yicha, H₂ hajmi va anod yemirilishi 1 soatlik ish uchun hisoblangan."], "info");
+  var rows = resultRows(p, r);
+  $("cards").innerHTML = rows.map(function (x) {
+    return '<div class="card"><div class="l">' + esc(x[0]) + " (" + esc(x[3]) + ')</div><div class="v">' + fmt(x[2]) + "</div></div>";
+  }).join("");
+  $("resTable").innerHTML = "<thead><tr>" + HEAD.map(function (h, i) { return "<th" + (i !== 2 ? ' class="t"' : "") + ">" + h + "</th>"; }).join("") + "</tr></thead><tbody>" +
+    rows.map(function (x) { return '<tr><td class="t">' + esc(x[0]) + '</td><td class="t">' + esc(x[1]) + "</td><td>" + fmt(x[2], 6) + '</td><td class="t">' + esc(x[3]) + "</td></tr>"; }).join("") + "</tbody>";
+  lastCalc = {p: p, r: r, rows: rows};
+}
+
+// ---------------------------------------------------------------- kinetics page
+function renderKinInputs() {
+  $("kinIn").tBodies[0].innerHTML = kinRows.map(function (r, i) {
+    var c = function (v) { return v === null || v === undefined ? "" : v; };
+    return '<tr><td><input type="number" step="any" data-i="' + i + '" data-j="0" value="' + c(r[0]) + '"></td>' +
+           '<td><input type="number" step="any" data-i="' + i + '" data-j="1" value="' + c(r[1]) + '"></td>' +
+           '<td><button class="btn x" data-del="' + i + '" title="Qatorni o\'chirish">×</button></td></tr>';
+  }).join("");
+}
+var KIN_HEAD = ["t, min", "KXT, mg/L", "C/C₀", "R, %", "ln(C₀/C)", "1/C − 1/C₀, L/mg"];
+function kinAoa(k, sym) {
+  var withP = k.points[0].dose !== null;
+  var head = KIN_HEAD.concat(withP ? [sym + " dozasi, mg/L", "Zaryad yuklamasi, C/L", "Energiya, kWh/m³"] : []);
+  return [head].concat(k.points.map(function (q) {
+    var r = [q.t, q.c, q.ratio, q.removal, q.ln, q.inv];
+    return withP ? r.concat([q.dose, q.charge, q.energy]) : r;
+  }));
+}
+var INK = "#0b0b0b", GRID = "#e6e5e1", DATA = "#2a78d6", FIT = "#52514e";
+function layout(xt, yt, legendBottom) {
+  var ax = {showline: true, linecolor: INK, linewidth: 1, ticks: "outside", tickcolor: INK, gridcolor: GRID, zeroline: false,
+            rangemode: "tozero", tickfont: {size: 14}};
+  return {paper_bgcolor: "white", plot_bgcolor: "white", font: {family: "Arial, Helvetica, sans-serif", color: INK, size: 14},
+          xaxis: Object.assign({title: {text: xt, font: {size: 16}}}, ax), yaxis: Object.assign({title: {text: yt, font: {size: 16}}}, ax),
+          legend: legendBottom ? {x: 0.99, y: 0.03, xanchor: "right", yanchor: "bottom", bgcolor: "rgba(255,255,255,0.8)"}
+                               : {x: 0.99, y: 0.99, xanchor: "right", yanchor: "top", bgcolor: "rgba(255,255,255,0.8)"},
+          margin: {l: 75, r: 25, t: 25, b: 65}, height: 520, hovermode: "x unified"};
+}
+function pointsTrace(x, y, tpl) {
+  return {x: x, y: y, mode: "markers", name: "Tajriba", cliponaxis: false, marker: {size: 10, color: DATA, line: {color: "white", width: 2}},
+          hovertemplate: tpl + "<extra>Tajriba</extra>"};
+}
+function eqText(f) {
+  var n = function (v) { var a = Math.abs(v); return a >= 1e-3 && a < 1e4 ? String(parseFloat(v.toPrecision(4))) : v.toExponential(3); };
+  return "y = " + n(f.slope) + "·x " + (f.intercept >= 0 ? "+ " : "− ") + n(Math.abs(f.intercept)) + "<br>R² = " + f.r2.toFixed(4);
+}
+var CFG = {displaylogo: false, responsive: true, toImageButtonOptions: {format: "png", width: 900, height: 560, scale: 4}};
+function drawCharts(k) {
+  var t = k.points.map(function (q) { return q.t; }), tmax = Math.max.apply(null, t), tr = [], i;
+  if (k.k1 > 0) {
+    var xs = [], ys = [];
+    for (i = 0; i <= 100; i++) { xs.push(tmax * i / 100); ys.push(k.c0 * Math.exp(-(k.first.slope * xs[i] + k.first.intercept))); }
+    tr.push({x: xs, y: ys, mode: "lines", name: "Psevdo-birinchi tartib modeli", line: {color: FIT, width: 2, dash: "dash"}, hovertemplate: "%{y:.0f} mg/L<extra>Model</extra>"});
+  }
+  tr.push(pointsTrace(t, k.points.map(function (q) { return q.c; }), "%{y:.0f} mg/L"));
+  Plotly.react("g1", tr, layout("Vaqt, min", "KXT, mg/L", false), CFG);
+  [["g2", k.first, "ln", "ln(C₀/C)"], ["g3", k.second, "inv", "1/C − 1/C₀, L/mg"]].forEach(function (g) {
+    var f = g[1], lay = layout("Vaqt, min", g[3], true);
+    lay.annotations = [{xref: "paper", yref: "paper", x: 0.03, y: 0.97, xanchor: "left", yanchor: "top", showarrow: false, align: "left",
+                        text: eqText(f), font: {size: 16, color: INK}, bgcolor: "rgba(255,255,255,0.85)", bordercolor: GRID, borderpad: 6}];
+    Plotly.react(g[0], [
+      {x: [0, tmax], y: [f.intercept, f.slope * tmax + f.intercept], mode: "lines", name: "Chiziqli regressiya", line: {color: FIT, width: 2}, hoverinfo: "skip"},
+      pointsTrace(t, k.points.map(function (q) { return q[g[2]]; }), "%{y:.4g}")
+    ], lay, CFG);
+  });
+}
+function renderKin() {
+  var p = params(), box = $("kinMsgs"), pv = validate(p, true), sym = p.material;
+  box.innerHTML = ""; lastKin = null;
+  if (pv.errors.length) { msgs(box, pv.errors, "err"); msgs(box, ["Jarayon parametrlari noto'g'ri — doza, zaryad va energiya ustunlari hisoblanmaydi."], "info"); }
+  msgs(box, pv.warnings, "warn");
+  if (p.mode === "continuous") msgs(box, ["Kinetik qator davriy tajriba deb qaraladi: har bir nuqta uchun doza va energiya jadvaldagi t bo'yicha hisoblanadi (Q ishlatilmaydi)."], "info");
+  var k = analyze(kinRows, pv.errors.length ? null : p);
+  msgs(box, k.errors, "err"); msgs(box, k.skipped, "warn");
+  $("kinOut").className = k.errors.length ? "hide" : "";
+  if (k.errors.length) return;
+  var above = k.points.filter(function (q) { return q.c > k.c0; }).map(function (q) { return q.t; });
+  if (above.length) msgs(box, ["t = " + above.join(", ") + " min da C > C₀: bu nuqtalarda samaradorlik manfiy."], "warn");
+
+  var aoa = kinAoa(k, sym);
+  $("kinTable").innerHTML = "<thead><tr>" + aoa[0].map(function (h) { return "<th>" + esc(h) + "</th>"; }).join("") + "</tr></thead><tbody>" +
+    aoa.slice(1).map(function (r) { return "<tr>" + r.map(function (v, i) { return "<td>" + (i === 5 && v !== 0 ? v.toExponential(3) : fmt(v)) + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody>";
+  var bestName = k.best === "first" ? "psevdo-birinchi tartib" : "psevdo-ikkinchi tartib";
+  $("best").innerHTML = '<div class="msg ok">Eng mos model: <b>' + bestName + "</b> (R² = " + Math.max(k.first.r2, k.second.r2).toFixed(4) + ")</div>";
+  var card = function (l, v) { return '<div class="card"><div class="l">' + l + '</div><div class="v">' + v + "</div></div>"; };
+  $("kinCards").innerHTML =
+    card("1-tartib: k₁ (1/min)", k.k1.toFixed(5)) + card("1-tartib: R²", k.first.r2.toFixed(4)) + card("1-tartib: t½ = ln2/k₁ (min)", fmt(k.halfLife)) +
+    card("2-tartib: k₂ (L/(mg·min))", k.k2.toExponential(3)) + card("2-tartib: R²", k.second.r2.toFixed(4));
+
+  var R = num("target"), tb = $("targetBox"), target = null;
+  tb.innerHTML = "";
+  if (R > 0) {
+    tb.innerHTML = "<h2>Maqsadli samaradorlik: R = " + R + " %</h2>";
+    if (R >= 100) msgs(tb, ["Maqsadli samaradorlik 0 va 100 % orasida bo'lishi kerak."], "err");
+    else if (!(k.k1 > 0)) msgs(tb, ["k₁ musbat emas — KXT kamaymayapti, kerakli vaqtni hisoblab bo'lmaydi."], "err");
+    else {
+      var tr = timeForRemoval(R, k.k1), a = pv.errors.length ? null : atTime(p, tr);
+      target = {R: R, t: tr, energy: a ? a.energy : null, dose: a ? a.dose : null};
+      tb.insertAdjacentHTML("beforeend", '<div class="grid">' + card("Kerakli vaqt (min)", tr.toFixed(1)) +
+        (a ? card("Energiya sarfi (kWh/m³)", fmt(a.energy)) + card(sym + " dozasi (mg/L)", fmt(a.dose)) : "") + "</div>" +
+        '<div class="hint">Birinchi tartib modeli bo\'yicha: t = −ln(1 − R/100)/k₁.</div>');
+      if (tr > k.points[k.points.length - 1].t) msgs(tb, ["Kerakli vaqt tajriba oralig'idan tashqarida — bu ekstrapolyatsiya."], "warn");
+    }
+  }
+  lastKin = {k: k, aoa: aoa, target: target, sym: sym};
+  drawCharts(k);
+}
+
+// ---------------------------------------------------------------- wiring
+function render() {
+  var m = MATERIALS[$("material").value], cont = mode() === "continuous";
+  $("matInfo").textContent = "M = " + m.M + " g/mol · z = " + m.z + " · ρ = " + m.rho.toFixed(2) + " g/cm³";
+  $("pmName").textContent = m.name;
+  $("tBox").className = cont ? "hide" : ""; $("qBox").className = cont ? "" : "hide";
+  renderCalc();
+  if ($("pKin").className !== "hide") renderKin();
+  save();
+}
+function showTab(kin) {
+  $("pCalc").className = kin ? "hide" : ""; $("pKin").className = kin ? "" : "hide";
+  $("tabCalc").className = kin ? "" : "on"; $("tabKin").className = kin ? "on" : "";
+  render();
+}
+function parseCsv(text) {
+  text = text.replace(/^﻿/, "");
+  var count = function (ch) { return text.split(ch).length - 1; };
+  var sep = count(";") > count(",") ? ";" : (count("\t") > count(",") ? "\t" : ",");
+  var rows = [];
+  text.split(/\r?\n/).forEach(function (line) {
+    var c = line.split(sep);
+    if (c.length < 2) return;
+    var a = Number(c[0].trim().replace(",", ".")), b = Number(c[1].trim().replace(",", "."));
+    if (c[0].trim() !== "" && c[1].trim() !== "" && isFinite(a) && isFinite(b)) rows.push([a, b]);
+  });
+  return rows;
+}
+
+Object.keys(MATERIALS).forEach(function (s) { $("material").insertAdjacentHTML("beforeend", '<option value="' + s + '">' + MATERIALS[s].name + " (" + s + ")</option>"); });
+load(); renderKinInputs();
+document.querySelector("aside").addEventListener("input", render);
+$("C0").addEventListener("input", render); $("C").addEventListener("input", render); $("target").addEventListener("input", render);
+$("tabCalc").onclick = function () { showTab(false); }; $("tabKin").onclick = function () { showTab(true); };
+$("reset").onclick = function () {
+  NUM_IDS.forEach(function (id) { $(id).value = DEFAULTS[id]; });
+  document.querySelector("input[name=mode][value=batch]").checked = true; render();
+};
+$("kinIn").addEventListener("input", function (e) {
+  var d = e.target.dataset; if (d.i === undefined) return;
+  var s = e.target.value.trim(); kinRows[+d.i][+d.j] = s === "" ? null : Number(s); render();
+});
+$("kinIn").addEventListener("click", function (e) {
+  var d = e.target.dataset.del; if (d === undefined) return;
+  kinRows.splice(+d, 1); renderKinInputs(); render();
+});
+$("addRow").onclick = function () { kinRows.push([null, null]); renderKinInputs(); save(); };
+$("sample").onclick = function () { kinRows = SAMPLE.map(function (r) { return r.slice(); }); renderKinInputs(); render(); };
+$("csv").onchange = function (e) {
+  var f = e.target.files[0]; if (!f) return;
+  var rd = new FileReader();
+  rd.onload = function () {
+    var rows = parseCsv(String(rd.result));
+    if (!rows.length) { $("kinMsgs").innerHTML = ""; msgs($("kinMsgs"), ["CSV o'qilmadi: faylda ikki ustunli sonli qiymatlar topilmadi."], "err"); return; }
+    kinRows = rows; renderKinInputs(); render();
+  };
+  rd.readAsText(f); e.target.value = "";
+};
+$("calcXlsx").onclick = function () { if (lastCalc) xlsxDownload("EK_natijalar.xlsx", [["Natijalar", [HEAD].concat(lastCalc.rows)], ["Kirish ma'lumotlari", [HEAD].concat(inputRows(lastCalc.p, lastCalc.r))]]); };
+$("calcCsv").onclick = function () { if (lastCalc) download("EK_natijalar.csv", csvBlob([HEAD].concat(lastCalc.rows))); };
+function modelsAoa(k) {
+  return [["Model", "Tenglama", "k (qiyalik)", "k birligi", "Erkin had", "R²", "t½, min", "Eng mos"],
+          ["Psevdo-birinchi tartib", "ln(C₀/C) = k₁·t", k.first.slope, "1/min", k.first.intercept, k.first.r2, k.halfLife, k.best === "first" ? "Ha" : ""],
+          ["Psevdo-ikkinchi tartib", "1/C − 1/C₀ = k₂·t", k.second.slope, "L/(mg·min)", k.second.intercept, k.second.r2, null, k.best === "second" ? "Ha" : ""]];
+}
+$("kinXlsx").onclick = function () {
+  if (!lastKin) return;
+  var sheets = [["Kinetika", lastKin.aoa], ["Modellar", modelsAoa(lastKin.k)]], g = lastKin.target;
+  if (g) sheets.push(["Maqsadli R", [["Maqsadli R, %", "Kerakli vaqt, min", "Energiya sarfi, kWh/m³", lastKin.sym + " dozasi, mg/L"], [g.R, g.t, g.energy, g.dose]]]);
+  xlsxDownload("EK_kinetika.xlsx", sheets);
+};
+$("kinCsv").onclick = function () { if (lastKin) download("EK_kinetika.csv", csvBlob(lastKin.aoa)); };
+Array.prototype.forEach.call(document.querySelectorAll(".png"), function (b) {
+  b.onclick = function () { Plotly.downloadImage(b.dataset.g, {format: "png", width: 900, height: 560, scale: 4, filename: b.dataset.f}); };
+});
+render();
+</script>
+</body>
+</html>
