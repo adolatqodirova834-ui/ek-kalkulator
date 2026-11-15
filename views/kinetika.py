@@ -103,7 +103,7 @@ st.success(f"Eng mos model: **{best_name}** (R² = {max(res.first.r2, res.second
 m1, m2 = st.columns(2)
 with m1:
     st.markdown("**Psevdo-birinchi tartib:** ln(C₀/C) = k₁·t" + (" ✅" if res.best == "first" else ""))
-    a, b, c = st.columns(3)
+    a, b, c = st.columns([1.5, 1, 1.4])
     a.metric("k₁ (1/min)", f"{res.k1:.5f}", border=True)
     b.metric("R²", f"{res.first.r2:.4f}", border=True)
     c.metric("t½ = ln2/k₁ (min)", fmt(res.half_life_min), border=True)
