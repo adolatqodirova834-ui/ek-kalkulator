@@ -17,12 +17,12 @@ c2.number_input("Oxirgi KXT, C (mg/L)", min_value=0.0, step=50.0, format="%.1f",
 exp = build_experiment()
 errors, warnings = exp.validate()
 for e in errors:
-    st.error(e, icon="⛔")
+    st.error(e, icon=":material/error:")
 if errors:
     st.info("Natijalarni ko'rish uchun yuqoridagi xatolarni tuzating.")
     st.stop()
 for w in warnings:
-    st.warning(w, icon="⚠️")
+    st.warning(w, icon=":material/warning:")
 
 r = exp.calculate()
 sym = exp.electrode.material.symbol
@@ -57,10 +57,10 @@ st.dataframe(res_df, hide_index=True, width="stretch",
              column_config={"Qiymat": st.column_config.NumberColumn(format="%.6g")})
 
 d1, d2, _ = st.columns([1, 1, 2])
-d1.download_button("⬇️ Excel (.xlsx)", to_xlsx_bytes({"Natijalar": res_df, "Kirish ma'lumotlari": in_df}),
+d1.download_button("Excel (.xlsx)", to_xlsx_bytes({"Natijalar": res_df, "Kirish ma'lumotlari": in_df}),
                    "EK_natijalar.xlsx",
-                   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", width="stretch")
-d2.download_button("⬇️ CSV", to_csv_bytes(res_df), "EK_natijalar.csv", "text/csv", width="stretch")
+                   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", width="stretch", icon=":material/download:")
+d2.download_button("CSV", to_csv_bytes(res_df), "EK_natijalar.csv", "text/csv", width="stretch", icon=":material/download:")
 
 with st.expander("Formulalar"):
     st.markdown(r"""

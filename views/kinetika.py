@@ -48,7 +48,7 @@ with right:
             st.session_state["kin_file"] = (up.name, up.size)
             st.session_state["kin_ver"] = st.session_state.get("kin_ver", 0) + 1
         except Exception as e:  # malformed file
-            st.error(f"CSV o'qilmadi: {e}", icon="⛔")
+            st.error(f"CSV o'qilmadi: {e}", icon=":material/error:")
     target = st.number_input("Maqsadli tozalash samaradorligi, R (%)", min_value=0.0, max_value=99.9,
                              step=5.0, format="%.1f", key="target",
                              help="0 kiritilsa, kerakli vaqt hisoblanmaydi.")
@@ -71,10 +71,10 @@ param_errors, param_warnings = validate_inputs(
 param_warnings = [w for w in param_warnings if "C₀" not in w]
 if param_errors:
     for e in param_errors:
-        st.error(e, icon="⛔")
+        st.error(e, icon=":material/error:")
     st.info("Jarayon parametrlari noto'g'ri — doza, zaryad va energiya ustunlari hisoblanmaydi.")
 for w in param_warnings:
-    st.warning(w, icon="⚠️")
+    st.warning(w, icon=":material/warning:")
 if exp.reactor.mode is Mode.CONTINUOUS:
     st.info("Kinetik qator davriy tajriba deb qaraladi: har bir nuqta uchun doza va energiya "
             "jadvaldagi t bo'yicha hisoblanadi (Q ishlatilmaydi).")
@@ -83,13 +83,13 @@ try:
     res, skipped = analyze(edited[T_COL].tolist(), edited[C_COL].tolist(), None if param_errors else exp)
 except ValidationError as err:
     for e in err.errors:
-        st.error(e, icon="⛔")
+        st.error(e, icon=":material/error:")
     st.stop()
 for m in skipped:
-    st.warning(m, icon="⚠️")
+    st.warning(m, icon=":material/warning:")
 above = [f"{p.time_min:g}" for p in res.points if p.c_mg_L > res.c0_mg_L]
 if above:
-    st.warning(f"t = {', '.join(above)} min da C > C₀: bu nuqtalarda samaradorlik manfiy.", icon="⚠️")
+    st.warning(f"t = {', '.join(above)} min da C > C₀: bu nuqtalarda samaradorlik manfiy.", icon=":material/warning:")
 
 sym = exp.electrode.material.symbol
 table = kinetics_table(res, sym)
@@ -99,16 +99,16 @@ st.dataframe(table, hide_index=True, width="stretch", column_config={
 
 st.subheader("Kinetik modellar")
 best_name = "psevdo-birinchi tartib" if res.best == "first" else "psevdo-ikkinchi tartib"
-st.success(f"Eng mos model: **{best_name}** (R² = {max(res.first.r2, res.second.r2):.4f})", icon="✅")
+st.success(f"Eng mos model: **{best_name}** (R² = {max(res.first.r2, res.second.r2):.4f})", icon=":material/check_circle:")
 m1, m2 = st.columns(2)
 with m1:
-    st.markdown("**Psevdo-birinchi tartib:** ln(C₀/C) = k₁·t" + (" ✅" if res.best == "first" else ""))
-    a, b, c = st.columns([1.5, 1, 1.4])
+    st.markdown("**Psevdo-birinchi tartib:** ln(C₀/C) = k₁·t" + (" (eng mos)" if res.best == "first" else ""))
+    a, b = st.columns(2)
     a.metric("k₁ (1/min)", f"{res.k1:.5f}", border=True)
     b.metric("R²", f"{res.first.r2:.4f}", border=True)
-    c.metric("t½ = ln2/k₁ (min)", fmt(res.half_life_min), border=True)
+    a.metric("t½ = ln2/k₁ (min)", fmt(res.half_life_min), border=True)
 with m2:
-    st.markdown("**Psevdo-ikkinchi tartib:** 1/C − 1/C₀ = k₂·t" + (" ✅" if res.best == "second" else ""))
+    st.markdown("**Psevdo-ikkinchi tartib:** 1/C − 1/C₀ = k₂·t" + (" (eng mos)" if res.best == "second" else ""))
     a, b = st.columns(2)
     a.metric("k₂ (L/(mg·min))", f"{res.k2:.3e}", border=True)
     b.metric("R²", f"{res.second.r2:.4f}", border=True)
@@ -129,9 +129,9 @@ if target > 0:
             target_row |= {"Energiya sarfi, kWh/m³": p.energy_kWh_m3, f"{sym} dozasi, mg/L": p.dose_mg_L}
         st.caption("Birinchi tartib modeli bo'yicha: t = −ln(1 − R/100)/k₁.")
         if t_req > max(p.time_min for p in res.points):
-            st.warning("Kerakli vaqt tajriba oralig'idan tashqarida — bu ekstrapolyatsiya.", icon="⚠️")
+            st.warning("Kerakli vaqt tajriba oralig'idan tashqarida — bu ekstrapolyatsiya.", icon=":material/warning:")
     except ValidationError as err:
-        st.error(err.errors[0], icon="⛔")
+        st.error(err.errors[0], icon=":material/error:")
 
 st.subheader("Grafiklar")
 figs = {
@@ -145,16 +145,16 @@ for tab, (name, (fig, fname)) in zip(st.tabs(list(figs)), figs.items()):
         if st.toggle("PNG tayyorlash (3600×2240 px)", key=f"png_{fname}"):
             png = charts.to_png(fig)
             if png:
-                st.download_button(f"⬇️ {fname}", png, fname, "image/png", key=f"dl_{fname}")
+                st.download_button(fname, png, fname, "image/png", key=f"dl_{fname}", icon=":material/download:")
             else:
                 st.info("PNG yaratib bo'lmadi (kaleido yoki Chrome o'rnatilmagan). "
-                        "Grafikning o'ng yuqori burchagidagi 📷 tugmasi orqali ham yuqori sifatli PNG saqlash mumkin.")
+                        "Grafikning o'ng yuqori burchagidagi kamera tugmasi orqali ham yuqori sifatli PNG saqlash mumkin.")
 
 st.subheader("Eksport")
 sheets = {"Kinetika": table, "Modellar": models_table(res)}
 if target_row:
     sheets["Maqsadli R"] = pd.DataFrame([target_row])
 d1, d2, _ = st.columns([1, 1, 2])
-d1.download_button("⬇️ Excel (.xlsx)", to_xlsx_bytes(sheets), "EK_kinetika.xlsx",
-                   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", width="stretch")
-d2.download_button("⬇️ CSV", to_csv_bytes(table), "EK_kinetika.csv", "text/csv", width="stretch")
+d1.download_button("Excel (.xlsx)", to_xlsx_bytes(sheets), "EK_kinetika.xlsx",
+                   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", width="stretch", icon=":material/download:")
+d2.download_button("CSV", to_csv_bytes(table), "EK_kinetika.csv", "text/csv", width="stretch", icon=":material/download:")

@@ -4,12 +4,12 @@ import streamlit as st
 
 from ui.sidebar import init_state, render_sidebar
 
-st.set_page_config(page_title="EK kalkulyatori", page_icon="⚡", layout="wide")
+st.set_page_config(page_title="EK kalkulyatori", page_icon=":material/bolt:", layout="wide")
 
 init_state()
 page = st.navigation([
-    st.Page("views/kalkulyator.py", title="Asosiy kalkulyator", icon="🧮", default=True),
-    st.Page("views/kinetika.py", title="Kinetika", icon="📈"),
+    st.Page("views/kalkulyator.py", title="Asosiy kalkulyator", icon=":material/calculate:", default=True),
+    st.Page("views/kinetika.py", title="Kinetika", icon=":material/show_chart:"),
 ])
 render_sidebar()
 page.run()
